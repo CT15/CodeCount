@@ -9,24 +9,7 @@ use feature 'switch';
 use Getopt::Long;
 use File::Basename;
 
-#
-# append_to_file()
-#
-# Arguments:
-#   $file_path: string Path of a file to be written to
-#   $to_write: Information to be written to the file
-#
-# Returns: void
-#
-# Appends the specified file with the given argument.
-#
-sub append_to_file {
-    my ( $file_path, $to_write ) = @_ ;
-
-    open my $fh, '>>', $file_path || die "Can't open file: $!";
-    say $fh $to_write;
-    close $fh || die "Can't close file: $!";
-}
+########## INITIALIZATION ##########
 
 my $check_path; # Path to file(s) to be checked
 my $save_path;  # Path to file where data is saved
@@ -41,12 +24,6 @@ if ( !$check_path ) {
     exit;
 }
 
-# Append date_time to target file if specified
-if ( $save_path ) { 
-    my $date_time = localtime();
-    append_to_file( $save_path, "\n$date_time" ); 
-}
-
 my @paths;
 if ( -d $check_path ) {
     # Get all files at specified directory
@@ -54,6 +31,35 @@ if ( -d $check_path ) {
 } else {    # A single file
     # There is only one path, which is $check_path
     @paths = $check_path;
+}
+
+my $total_lines = 0;
+
+############### END ################
+
+######## HELPER SUBROUTINES ########
+
+#
+# display_and_append_file()
+#
+# Arguments:
+#   $text: Text to be displayed on the console
+#
+# Returns: void
+#
+# Display the given argument on the console.
+# Appends the specified file with the given argument
+# if $save_path is specified.
+#
+sub display_and_append_file {
+    my ( $text ) = @_ ;
+    say $text;
+
+    if( $save_path ) {
+        open my $fh, '>>', $save_path || die "Can't open file: $!";
+        say $fh $text;
+        close $fh || die "Can't close file: $!";
+    }
 }
 
 #
@@ -74,17 +80,17 @@ sub process_files {
 
     foreach my $path ( @paths ) {
 
-        if( -d $path ) {
+        if( -d $path ) {    # Handle sub-directory
             my $dir_name = basename( $path );
 
-            if( $save_path ) { append_to_file( $save_path, "=== $dir_name START ===" ); }
-            say "=== $dir_name START ===";
+            display_and_append_file
+        ( "=== $dir_name START ===" );
 
             my @paths_in_dir = glob( "$path" . "/*" );
             process_files( \@paths_in_dir );
             
-            if( $save_path ) { append_to_file( $save_path, "=== $dir_name END ===" ); }
-            say "=== $dir_name END ===";
+            display_and_append_file
+        ( "=== $dir_name END ===" );
         
             next;
         }
@@ -105,13 +111,23 @@ sub process_files {
 
         # Display line_count in the console
         my $file_name = basename( $path );
-        say "$file_name: $line_count";
+        display_and_append_file
+    ( "$file_name: $line_count" );
 
-        # Append $line_count data to target file if specified
-        if( $save_path ) { 
-            append_to_file( $save_path, "$file_name: $line_count" ); 
-        }
+        # Increment total number of lines
+        $total_lines += $line_count;
     }
 }
 
+############### END ################
+
+############ EXECUTION #############
+
+my $date_time = localtime();
+display_and_append_file( "$date_time" );
+
 process_files( \@paths );
+display_and_append_file( "==========");
+display_and_append_file( "Total: $total_lines\n" );
+
+############### END ################
