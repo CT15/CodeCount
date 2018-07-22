@@ -111,7 +111,6 @@ sub process_files {
         if( -d $path ) {    # Handle sub-directory
             my $dir_name = basename( $path );
 
-            say "HERE";
             display_and_append_file( "=== $dir_name START ===" );
 
             my @paths_in_dir = glob( "$path" . "/*" );
@@ -128,7 +127,6 @@ sub process_files {
             next;
         }
 
-        say "YAY";
         open my $fh, '<', $path || die "Can't open file: $!";
 
         # Count the lines of code
