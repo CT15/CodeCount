@@ -21,8 +21,7 @@ use File::Basename;
 # Appends the specified file with the given argument.
 #
 sub append_to_file {
-    my $file_path = shift( @_ );
-    my $to_write = shift( @_ );
+    my ( $file_path, $to_write ) = @_ ;
 
     open my $fh, '>>', $file_path || die "Can't open file: $!";
     say $fh $to_write;
@@ -48,36 +47,71 @@ if ( $save_path ) {
     append_to_file( $save_path, "\n$date_time" ); 
 }
 
-my @files;
-
+my @paths;
 if ( -d $check_path ) {
     # Get all files at specified directory
-    @files = glob( $check_path . "/*" );
+    @paths = glob( "$check_path" . "/*");
 } else {    # A single file
-    @files = glob( $check_path );
+    # There is only one path, which is $check_path
+    @paths = $check_path;
 }
 
-foreach my $file ( @files ) {
-    open my $fh, '<', $file || die "Can't open file: $!";
+#
+# process_files()
+#
+# Arguments:
+#   $files: array of string Paths to files to be processed
+#
+# Returns: void
+#
+# Counts the lines of code in all the files as specified by paths.
+# If any path is a directory, counts the lines of code in all the
+# files in the directory.
+#
+sub process_files {
+    my $paths_ref = shift( @_ );
+    my @paths = @$paths_ref;
 
-    # Count the lines of code
-    my $line_count = 0;
-    while( my $line = <$fh> ) {
-        $line =~ s/^\s+|\s+$//g;    # Trim both ends
+    foreach my $path ( @paths ) {
 
-        if( substr($line, 0, 2) ne "//" && $line ne "" ) {
-            $line_count++;
+        if( -d $path ) {
+            my $dir_name = basename( $path );
+
+            if( $save_path ) { append_to_file( $save_path, "=== $dir_name START ===" ); }
+            say "=== $dir_name START ===";
+
+            my @paths_in_dir = glob( "$path" . "/*" );
+            process_files( \@paths_in_dir );
+            
+            if( $save_path ) { append_to_file( $save_path, "=== $dir_name END ===" ); }
+            say "=== $dir_name END ===";
+        
+            next;
+        }
+
+        open my $fh, '<', $path || die "Can't open file: $!";
+
+        # Count the lines of code
+        my $line_count = 0;
+        while( my $line = <$fh> ) {
+            $line =~ s/^\s+|\s+$//g;    # Trim both ends
+
+            if( substr($line, 0, 2) ne "//" && $line ne "" ) {
+                $line_count++;
+            }
+        }
+
+        close $fh || die "Can't close file: $!";
+
+        # Display line_count in the console
+        my $file_name = basename( $path );
+        say "$file_name: $line_count";
+
+        # Append $line_count data to target file if specified
+        if( $save_path ) { 
+            append_to_file( $save_path, "$file_name: $line_count" ); 
         }
     }
-
-    close $fh || die "Can't close file: $!";
-
-    # Display line_count in the console
-    my $file_name = basename( $file );
-    say "$file_name: $line_count";
-
-    # Append $line_count data to target file if specified
-    if( $save_path ) { 
-        append_to_file( $save_path, "$file_name: $line_count" ); 
-    }
 }
+
+process_files( \@paths );
