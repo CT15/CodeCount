@@ -110,9 +110,10 @@ sub process_files {
         # Count the lines of code
         my $line_count = 0;
         while( my $line = <$fh> ) {
+
             $line =~ s/^\s+|\s+$//g;    # Trim both ends
 
-            if( substr($line, 0, 2) ne "//" && $line ne "" ) {
+            if( $line ne "" && !is_comment( $line, $extension ) ) {
                 $line_count++;
             }
         }

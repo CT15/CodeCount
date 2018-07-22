@@ -2,16 +2,18 @@
 package Extensions;
 
 use Exporter;
+use feature 'say';
 
 @ISA = ( 'Exporter' );
 our @EXPORT = qw/ 
     is_supported
-    comments_identifiers
+    is_comment
     get_supported_extensions/;
 
+my @swift_comment_ids = ('//');     # .swift ~> '//', '///', '/* */'
+
 my %supported_extensions = (
-    # .swift ~> '//', '///', '/* */'
-    '.swift' => ('//')
+    '.swift' => \@swift_comment_ids
 );
 
 #
@@ -28,27 +30,33 @@ my %supported_extensions = (
 #
 sub is_supported {
     my $extension = shift;
-
-    if( !exists( $supported_extensions{ $extension } ) ) {
-        return 0;
-    }
-
-    return 1;
+    return !exists( $supported_extensions{ $extension } ) ? 0 : 1;
 }
 
 #
-# comments_identifiers()
+# is_comment()
 #
 # Arguments:
+#   $line: string A line in the source code
 #   $extension: string File extension
 #
-# Returns: array of string Comments identifiers
+# Returns: boolean True (1) if the line is a comment
+#                  False (0) otherwise
 #
-# Get the comments identifiers of file with the given extension.
+# Check whether a line in the source code is a comment.
 #
-sub comments_identifiers {
-    my $extension = shift;
-    return $supported_extensions{ $extension };
+sub is_comment {
+    my ( $line, $extension ) = @_;
+
+    my @comment_ids = @{ $supported_extensions { $extension } };
+
+    foreach my $comment_id ( @comment_ids ) {
+        if( $line =~ m/^$comment_id/ ) {
+            return 1;
+        }
+    }
+    
+    return 0;
 }
 
 #
