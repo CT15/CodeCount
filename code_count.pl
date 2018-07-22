@@ -4,15 +4,15 @@ use warnings;
 use diagnostics;
 
 use feature 'say';
-use feature 'switch';
 
 use Getopt::Long;
 use File::Basename;
+use Cwd 'abs_path';
+
+use lib dirname( abs_path $0 ); # Manipulate @INC at compile time
+use Extensions;
 
 ########## INITIALIZATION ##########
-my @supported_extensions = qw/
-.txt
-/;
 
 my $check_path;     # Path to file(s) to be checked
 my $save_path;      # Path to file where data is saved
@@ -43,29 +43,6 @@ my $total_lines = 0;
 ############### END ################
 
 ######## HELPER SUBROUTINES ########
-
-#
-# is_supported()
-#
-# Arguments:
-#   $extension: string File extension
-#
-# Returns: boolean True (1) if extension is supported
-#                  False (0) otherwise
-#
-# Check whether the extension specified is in the @supported_extensions array. 
-# "" is considered a supported extension.
-#
-sub is_supported {
-    my $extension = shift;
-    my %supported_extensions = map { $_ => 1 } @supported_extensions;
-
-    if( $extension ne "" && !exists( $supported_extensions{ $extension } ) ) {
-        return 0;
-    }
-
-    return 1;
-}
 
 #
 # display_and_append_file()
@@ -122,8 +99,9 @@ sub process_files {
         }
 
         # Skip file if extension does not match the extension specified
-        my ( $name, $dir, $extension ) = fileparse( $path, @supported_extensions );
-        if ( !is_supported( $extension ) ) {
+        my ( $name, $dir, $ext ) = fileparse( $path, get_supported_extensions() );
+
+        if ( $extension ne "" && !is_supported( $ext ) ) {
             next;
         }
 
@@ -155,7 +133,7 @@ sub process_files {
 ############ EXECUTION #############
 
 # Check if extension is supported
-if( !is_supported( $extension ) ) {
+if( $extension ne "" && !is_supported( $extension ) ) {
     say "The extension you specified is not yet supported.\n" .
         "You can go to https://github.com/CT15/CodeCount to submit a PR.\n" .
         "It is also possible that you did not specify the correct extension.\n" .
@@ -165,7 +143,7 @@ if( !is_supported( $extension ) ) {
 }
 
 my $date_time = localtime();
-display_and_append_file( "$date_time" );
+display_and_append_file( $date_time );
 
 process_files( \@paths );
 display_and_append_file( "==========");
