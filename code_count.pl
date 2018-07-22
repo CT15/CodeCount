@@ -36,9 +36,11 @@ while( my $line = <$fh> ) {
 close $fh or die "Can't close file: $_";
 
 if ( $save_path ) {
-    open my $fh, '>', $save_path
+    open my $fh, '>>', $save_path
         or die "Can't open file: $_";
     
-    print $fh $line_count;
+    my $date_time = localtime();
+    say $fh "$date_time";
+    say $fh "$line_count\n";
 }
 say $line_count;
