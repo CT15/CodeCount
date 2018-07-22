@@ -16,16 +16,22 @@ use Extensions;
 
 my $check_path;     # Path to file(s) to be checked
 my $save_path;      # Path to file where data is saved
-my $extension = ""; # Extension of files to check (with .)
+my $extension; # Extension of files to check (with .)
 GetOptions(
     "path=s" => \$check_path,       # compulsory
-    "save=s" => \$save_path,        # optional
-    "extension=s" => \$extension    # optional, default to all extensions
+    "extension=s" => \$extension,   # compulsory
+    "save=s" => \$save_path         # optional
 );
 
 # Check if the path is specified
 if ( !$check_path ) {
-    say "Path argument must be specified.";
+    say "path argument must be specified.";
+    exit;
+}
+
+# Check if extension is specified
+if ( !$extension ) {
+    say "extension argument must be specified.";
     exit;
 }
 
