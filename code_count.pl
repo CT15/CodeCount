@@ -10,12 +10,17 @@ use Getopt::Long;
 use File::Basename;
 
 ########## INITIALIZATION ##########
+my @supported_extensions = qw/
+.txt
+/;
 
-my $check_path; # Path to file(s) to be checked
-my $save_path;  # Path to file where data is saved
+my $check_path;     # Path to file(s) to be checked
+my $save_path;      # Path to file where data is saved
+my $extension = ""; # Extension of files to check (with .)
 GetOptions(
-    "path=s" => \$check_path,   # compulsory
-    "save=s" => \$save_path     # optional
+    "path=s" => \$check_path,       # compulsory
+    "save=s" => \$save_path,        # optional
+    "extension=s" => \$extension    # optional, default to all extensions
 );
 
 # Check if the path is specified
@@ -27,7 +32,7 @@ if ( !$check_path ) {
 my @paths;
 if ( -d $check_path ) {
     # Get all files at specified directory
-    @paths = glob( "$check_path" . "/*");
+    @paths = glob( $check_path . "/*" );
 } else {    # A single file
     # There is only one path, which is $check_path
     @paths = $check_path;
@@ -38,6 +43,29 @@ my $total_lines = 0;
 ############### END ################
 
 ######## HELPER SUBROUTINES ########
+
+#
+# is_supported()
+#
+# Arguments:
+#   $extension: string File extension
+#
+# Returns: boolean True (1) if extension is supported
+#                  False (0) otherwise
+#
+# Check whether the extension specified is in the @supported_extensions array. 
+# "" is considered a supported extension.
+#
+sub is_supported {
+    my $extension = shift;
+    my %supported_extensions = map { $_ => 1 } @supported_extensions;
+
+    if( $extension ne "" && !exists( $supported_extensions{ $extension } ) ) {
+        return 0;
+    }
+
+    return 1;
+}
 
 #
 # display_and_append_file()
@@ -83,18 +111,24 @@ sub process_files {
         if( -d $path ) {    # Handle sub-directory
             my $dir_name = basename( $path );
 
-            display_and_append_file
-        ( "=== $dir_name START ===" );
+            say "HERE";
+            display_and_append_file( "=== $dir_name START ===" );
 
             my @paths_in_dir = glob( "$path" . "/*" );
             process_files( \@paths_in_dir );
             
-            display_and_append_file
-        ( "=== $dir_name END ===" );
+            display_and_append_file( "=== $dir_name END ===" );
         
             next;
         }
 
+        # Skip file if extension does not match the extension specified
+        my ( $name, $dir, $extension ) = fileparse( $path, @supported_extensions );
+        if ( !is_supported( $extension ) ) {
+            next;
+        }
+
+        say "YAY";
         open my $fh, '<', $path || die "Can't open file: $!";
 
         # Count the lines of code
@@ -111,8 +145,7 @@ sub process_files {
 
         # Display line_count in the console
         my $file_name = basename( $path );
-        display_and_append_file
-    ( "$file_name: $line_count" );
+        display_and_append_file( "$file_name: $line_count" );
 
         # Increment total number of lines
         $total_lines += $line_count;
@@ -122,6 +155,16 @@ sub process_files {
 ############### END ################
 
 ############ EXECUTION #############
+
+# Check if extension is supported
+if( !is_supported( $extension ) ) {
+    say "The extension you specified is not yet supported.\n" .
+        "You can go to https://github.com/CT15/CodeCount to submit a PR.\n" .
+        "It is also possible that you did not specify the correct extension.\n" .
+        "The correct extension should be inclusive of the '.' (dot).\n" .
+        "For example, '.java' and NOT 'java'.";
+    exit;
+}
 
 my $date_time = localtime();
 display_and_append_file( "$date_time" );
