@@ -67,3 +67,18 @@ causes `@retrieved_array` to be `undef`.
 
 ### Arguments parsing in a subroutine
 
+The following works:
+```perl 
+my ($text) = @_; 
+```
+``` perl
+my $text = shift;
+```
+```perl
+my $text = shift( @_ );
+```
+
+The following does not work:
+```perl
+my $text = @_;  # $text == 1
+```
