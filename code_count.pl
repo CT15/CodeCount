@@ -38,7 +38,7 @@ if ( !$extension ) {
 my @paths;
 if ( -d $check_path ) {
     # Get all files at specified directory
-    @paths = glob( $check_path . "/*" );
+    @paths = glob qq{ '$check_path/*' };
 } else {    # A single file
     # There is only one path, which is $check_path
     @paths = $check_path;
@@ -96,7 +96,7 @@ sub process_files {
 
             display_and_append_file( "=== $dir_name START ===" );
 
-            my @paths_in_dir = glob( "$path" . "/*" );
+            my @paths_in_dir = glob qq{ '$path/*' };
             process_files( \@paths_in_dir );
             
             display_and_append_file( "=== $dir_name END ===" );

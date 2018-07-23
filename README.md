@@ -20,6 +20,8 @@ Given that `directory_path` is an argument specified from the terminal when perl
 
 It seems like `glob()` behaves the same way in both Perl and Python. 
 
+To enable Perl to detect directories containing spaces we use `glob qq{ directory_path }`
+
 ### Passing an array into a subroutine
 
 Passing in an array into subroutines involve passing in the reference of the array.
