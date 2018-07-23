@@ -10,10 +10,8 @@ our @EXPORT = qw/
     is_comment
     get_supported_extensions/;
 
-my @swift_comment_ids = ('//');     # .swift ~> '//', '///', '/* */'
-
 my %supported_extensions = (
-    '.swift' => \@swift_comment_ids
+    '.swift' => ['//']  # .swift ~> '//', '///', '/* */'
 );
 
 #
