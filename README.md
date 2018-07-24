@@ -4,12 +4,10 @@
 
 Below are the steps of how the counting of lines of code is done:
   1. A temporary file in the `process` directory is created
-  2. The content of a file is copied into the temporary file
-  3. All comments from the temporary file are removed
-  4. The remaining lines in the temporary file are counted
-  5. The temporary file in the `process` directory is cleaned
-  6. Steps 1 to 5 are repeated till all files are parsed
-  7. The temporary file in the `process` directory is removed
+  2. The content of a file is copied into the temporary file without mltiline comments
+  3. The lines in the temporary file are counted ignoring blank lines and comment lines
+  4. The temporary file in the `process` directory is removed
+  5. Steps 1 to 4 are repeated till all files are parsed
 
 ## Usage
 
@@ -29,10 +27,22 @@ Optionally, you can specify the path to a file where you want to save the parsin
 $ perl code_count.pl -p some/path -e .some_extension -s path/to/result/file
 ```
 
-Example:
+### Example:
+
+An example of script execution with `save` argument.
 ```shell
 $ perl code_count.pl -p ~/Desktop/my_directory -e .swift -s ~/Desktop/result.txt
 ```
+
+### Dependency
+
+You may need to install `Path::Tiny` module.
+```shell
+$ cpan Path::Tiny
+```
+## Extension Support
+
+.swift
 
 ## "Weird Phenomena"
 
@@ -124,5 +134,9 @@ my $text = @_;  # $text == 1
 [This](https://stackoverflow.com/questions/10031455/using-my-with-parentheses-and-only-one-variable) StackOverflow thread provides a useful example.
 
 ### quotemeta
+
+## Reflection
+
+Regex is hard!!!
 
 
