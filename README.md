@@ -6,8 +6,8 @@ Counts the lines of code in a single file / all files specified in a directory w
 
 Below are the steps of how the counting of lines of code is done:
   1. A temporary file in the `process` directory is created
-  2. The content of a file is copied into the temporary file without mltiline comments
-  3. The lines in the temporary file are counted ignoring blank lines and comment lines
+  2. The content of a file is copied into the temporary file without multi-line comments
+  3. The lines in the temporary file are counted, ignoring blank lines and comment lines
   4. The temporary file in the `process` directory is removed
   5. Steps 1 to 4 are repeated till all files are parsed
 
