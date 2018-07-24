@@ -84,3 +84,7 @@ The following does not work:
 ```perl
 my $text = @_;  # $text == 1
 ```
+
+#### Note
+
+[This](https://stackoverflow.com/questions/10031455/using-my-with-parentheses-and-only-one-variable) StackOverflow thread provides a useful example.

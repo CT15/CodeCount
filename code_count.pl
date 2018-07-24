@@ -24,13 +24,13 @@ GetOptions(
 );
 
 # Check if the path is specified
-if ( !$check_path ) {
+unless ( $check_path ) {
     say "path argument must be specified.";
     exit;
 }
 
 # Check if extension is specified
-if ( !$extension ) {
+unless ( $extension ) {
     say "extension argument must be specified.";
     exit;
 }
@@ -63,7 +63,7 @@ my $total_lines = 0;
 # if $save_path is specified.
 #
 sub display_and_append_file {
-    my ( $text ) = @_ ;
+    my ( $text ) = @_;
     say $text;
 
     if( $save_path ) {
