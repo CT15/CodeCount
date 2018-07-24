@@ -1,5 +1,39 @@
 # CodeCount
 
+## How it is done
+
+Below are the steps of how the counting of lines of code is done:
+  1. A temporary file in the `process` directory is created
+  2. The content of a file is copied into the temporary file
+  3. All comments from the temporary file are removed
+  4. The remaining lines in the temporary file are counted
+  5. The temporary file in the `process` directory is cleaned
+  6. Steps 1 to 5 are repeated till all files are parsed
+  7. The temporary file in the `process` directory is removed
+
+## Usage
+
+1. Clone the repository. Using HTTPS:
+    ```shell
+    $ git clone https://github.com/CT15/CodeCount.git
+    ```
+2. Navigate into the direcotry and run `code_count.pl`.
+   Don't forget to specify the `path` and `extension` argument as follows:
+    ```shell
+    $ cd CodeCount
+    $ perl code_count.pl -p path/to/file/or/directory/to/check -e .your_file_extension
+    ```
+    
+Optionally, you can specify the path to a file where you want to save the parsing result (the `save` argument).
+```shell
+$ perl code_count.pl -p some/path -e .some_extension -s path/to/result/file
+```
+
+Example:
+```shell
+$ perl code_count.pl -p ~/Desktop/my_directory -e .swift -s ~/Desktop/result.txt
+```
+
 ## "Weird Phenomena"
 
 The things listed below are perhaps expected but they seemed weird to a first time Perl learner like myself.
@@ -88,3 +122,7 @@ my $text = @_;  # $text == 1
 #### Note
 
 [This](https://stackoverflow.com/questions/10031455/using-my-with-parentheses-and-only-one-variable) StackOverflow thread provides a useful example.
+
+### quotemeta
+
+
