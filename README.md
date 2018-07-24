@@ -135,8 +135,12 @@ my $text = @_;  # $text == 1
 
 ### quotemeta
 
+## Future Improvement
+
+Try to remove all comments (single and multi-line) from the content of a file before printing it to `temp.txt` file. Currently, I am only able to remove multi-line comments.
+
 ## Reflection
 
 Regex is hard!!!
 
-
+It is difficult to ensure that I have considered all possible commenting cases for an extension.
