@@ -7,6 +7,7 @@ use feature 'say';
 
 use Getopt::Long;
 use File::Basename;
+use Path::Tiny 'path';
 use Cwd 'abs_path';
 
 use lib dirname( abs_path $0 ); # Manipulate @INC at compile time
@@ -34,10 +35,6 @@ unless ( $extension ) {
     say "extension argument must be specified.";
     exit;
 }
-
-# Creates temp.txt file in process directory
-my $temp_file_path = dirname( abs_path $0 ) . '/process/temp.txt';
-open my $DATA, '+>', $temp_file_path || die "Can't open file: $!";
 
 my @paths;
 if ( -d $check_path ) {
@@ -129,25 +126,26 @@ sub process_files {
         # Skip file if extension does not match the extension specified
         unless( has_specified_extension( $path ) ) { next; }
 
-        # Open file
-        open my $fh, '<', $path || die "Can't open file: $!";
+        # Create temp.txt in process folder
+        my $temp_path = dirname( abs_path $0 ) . '/process/temp.txt';
+        open my $TEMP, '+>', $temp_path || die "Can't open file: $!";
 
-        # Copy content of file to process/temp.txt file
+        # Copy file content to temp.txt without multiline comments
+        my $file_content = path( $path )->slurp_utf8;
+        $file_content =~ s{/\*(?:.|[\r\n])*?\*/}{}g;
+        print $TEMP $file_content;
 
-        # Remove comments from temp.txt file
-
-        # Count the lines of code
         my $line_count = 0;
-        while( my $line = <$fh> ) {
 
-            $line =~ s/^\s+|\s+$//g;    # Trim both ends
+        seek $TEMP, 0, 0;   # Re-position pointer to the beginning of the file
 
+        # Count lines of code ignoring empty lines and comments
+        while( my $line = <$TEMP> ) {
+            $line =~ s/^(\s+)|(\s+)$//g;
             if( $line ne "" && !is_comment( $line, $extension ) ) {
                 $line_count++;
             }
         }
-
-        close $fh || die "Can't close file: $!";
 
         # Display line_count in the console
         my $file_name = basename( $path );
@@ -155,6 +153,10 @@ sub process_files {
 
         # Increment total number of lines
         $total_lines += $line_count;
+
+        # Delete temp.txt
+        close $TEMP || die "Can't close file: $!";
+        unlink $temp_path;
     }
 }
 

@@ -13,10 +13,10 @@ our @EXPORT = qw/
 # 
 # %supported_extensions
 #
-# Key:      string              Supported extension inclusive of .
-# Value:    array reference     Regular Expression of comments identifiers
+# Key:      string          Supported extension inclusive of .
+# Value:    array reference Single line comments identifier
 my %supported_extensions = (
-    '.swift' => ['//(\s|.)*$/?', '/\*(?:.|[\r\n])*?\*/']  # .swift ~> '//', '///', '/* */'
+    '.swift' => ['//']  # //, ///
 );
 
 #
