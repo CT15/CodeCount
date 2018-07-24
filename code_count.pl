@@ -35,6 +35,10 @@ unless ( $extension ) {
     exit;
 }
 
+# Creates temp.txt file in process directory
+my $temp_file_path = dirname( abs_path $0 ) . '/process/temp.txt';
+open my $DATA, '+>', $temp_file_path || die "Can't open file: $!";
+
 my @paths;
 if ( -d $check_path ) {
     # Get all files at specified directory
@@ -49,6 +53,24 @@ my $total_lines = 0;
 ############### END ################
 
 ######## HELPER SUBROUTINES ########
+
+#
+# has_specified_extension()
+#
+# Arguments:
+#   $path: string Path to file to be processed
+#
+# Returns: True (1) if extension is supported
+#          False (0) otherwise
+#
+# Check whether the file given by path has the same
+# extension as the extension argument specified.
+#
+sub has_specified_extension {
+    my $path = shift;
+    my ( $name, $dir, $ext ) = fileparse( $path, get_supported_extensions() );
+    return $ext eq $extension ? 1 : 0;
+}
 
 #
 # display_and_append_file()
@@ -105,13 +127,14 @@ sub process_files {
         }
 
         # Skip file if extension does not match the extension specified
-        my ( $name, $dir, $ext ) = fileparse( $path, get_supported_extensions() );
+        unless( has_specified_extension( $path ) ) { next; }
 
-        if ( $extension ne "" && !is_supported( $ext ) ) {
-            next;
-        }
-
+        # Open file
         open my $fh, '<', $path || die "Can't open file: $!";
+
+        # Copy content of file to process/temp.txt file
+
+        # Remove comments from temp.txt file
 
         # Count the lines of code
         my $line_count = 0;
@@ -140,7 +163,7 @@ sub process_files {
 ############ EXECUTION #############
 
 # Check if extension is supported
-if( $extension ne "" && !is_supported( $extension ) ) {
+unless( is_supported( $extension ) ) {
     say "The extension you specified is not yet supported.\n" .
         "You can go to https://github.com/CT15/CodeCount to submit a PR.\n" .
         "It is also possible that you did not specify the correct extension.\n" .
