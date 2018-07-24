@@ -1,5 +1,7 @@
 # CodeCount
 
+Counts the lines of code in a single file / all files specified in a directory with the specified extension (e.g. .swift). These data can be automatically written into a file if the file path is specified.
+
 ## How it is done
 
 Below are the steps of how the counting of lines of code is done:
